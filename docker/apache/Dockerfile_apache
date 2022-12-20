@@ -2,6 +2,7 @@ FROM php:7.4-apache
 
 # Variables
 ENV WORKDIR=/var/www/html/web-crud
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN a2enmod rewrite
 ########################################################################################################################
@@ -54,7 +55,6 @@ RUN apt-get update
 ########################################################################################################################
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-
 # disable default site
 RUN a2dissite 000-default.conf
 
@@ -93,6 +93,6 @@ WORKDIR ${WORKDIR}
 # RUN composer update --with-all-dependencies --no-interaction
 
 
-# RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 CMD ["apache2-foreground"]
-# ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
