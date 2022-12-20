@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Scooter{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h2 class="text-center mt-5 mb-3">Show Scooter</h2>
+    <div class="card">
+        <div class="card-header">
+            <a href="{{ path('scooter_index') }}" class="btn btn-outline-success float-right">
+                View All Scooters
+            </a>
+            
+            <a href="{{ path('scooter_edit', {'id': scooter.id}) }}" class="btn btn-outline-success float-right">Edit</a>
+            
+            {{ include('scooter/_delete_form.html.twig') }}
+        </div>
+        <div class="card-body">
+            <b class="text-muted">Name:</b>
+            <p>{{ scooter.name }}</p>
+            <b class="text-muted">Year:</b>
+            <p>{{ scooter.year }}</p>
+            <b class="text-muted">Description:</b>
+            <p>{{ scooter.description }}</p>
+            <b class="text-muted">Date Created:</b>
+            <p>{{ scooter.createdAt ? scooter.createdAt|date('Y-m-d H:i:s') : '' }}</p>
+            <b class="text-muted">Date Updated:</b>
+            <p>{{ scooter.updatedAt ? scooter.updatedAt|date('Y-m-d H:i:s') : '' }}</p>
+            <b class="text-muted">Price:</b>
+            <p>{{ scooter.price }}</p>
+
+        </div>
+    </div>
+</div>
+    
+{% endblock %}

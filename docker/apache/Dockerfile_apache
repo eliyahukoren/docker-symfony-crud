@@ -1,0 +1,98 @@
+FROM php:7.4-apache
+
+# Variables
+ENV WORKDIR=/var/www/html/web-crud
+
+RUN a2enmod rewrite
+########################################################################################################################
+# Install packages
+########################################################################################################################
+# RUN apt-get update && apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
+#     && apt-get install vim -y\
+#     && apt-get install -y libzip-dev git wget --no-install-recommends zip \
+#     && apt-get install npm -y \
+#     && docker-php-ext-configure gd --with-freetype --with-jpeg \
+#     && docker-php-ext-install -j$(nproc) gd \
+#     && apt-get clean \
+#     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN apt-get update && apt-get install apt-file -y && apt-file update && apt-get install vim -y\
+    && apt-get install -y libzip-dev git wget --no-install-recommends zip \
+    && apt-get install npm -y && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN apt-get update && apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev
+
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd
+
+# Install Symfony CLI
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | bash
+RUN apt install symfony-cli
+
+# Install CA
+RUN symfony server:ca:install
+
+RUN apt-get install -y zip unzip
+
+# Postgres
+RUN apt-get install -y libpq-dev
+RUN docker-php-ext-install pdo_pgsql
+
+RUN apt-get update && \
+    apt-get install -y \
+    libzip-dev \
+    && docker-php-ext-install zip
+
+RUN apt-get install -y libicu-dev
+RUN docker-php-ext-install intl  
+
+RUN apt-get update
+
+########################################################################################################################
+# Installing composer
+########################################################################################################################
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+
+# disable default site
+RUN a2dissite 000-default.conf
+
+
+########################################################################################################################
+# Installing phpmyadmin
+########################################################################################################################
+RUN apt update && \
+wget https://files.phpmyadmin.net/phpMyAdmin/5.2.0/phpMyAdmin-5.2.0-all-languages.tar.gz && \
+tar xvf phpMyAdmin-5.2.0-all-languages.tar.gz && \
+mv phpMyAdmin-5.2.0-all-languages/ /usr/share/phpmyadmin && \
+mkdir -p /var/lib/phpmyadmin/tmp && \
+chown -R www-data:www-data /var/lib/phpmyadmin
+
+# Config files
+COPY phpmyadmin/config.inc.php /usr/share/phpmyadmin/config.inc.php
+COPY phpmyadmin/phpmyadmin.conf /etc/apache2/conf-available/phpmyadmin.conf
+RUN a2enconf phpmyadmin.conf
+
+########################################################################################################################
+# PHP INI
+########################################################################################################################
+# Configuration File (php.ini) Path => /usr/local/etc/php
+COPY php.ini /usr/local/etc/php/
+
+
+
+########################################################################################################################
+# Configuration files
+########################################################################################################################
+COPY crud.ett.loc.conf /etc/apache2/sites-enabled/
+COPY entrypoint.sh /entrypoint.sh
+
+WORKDIR ${WORKDIR}
+
+# RUN composer update --with-all-dependencies --no-interaction
+
+
+# RUN chmod +x /entrypoint.sh
+CMD ["apache2-foreground"]
+# ENTRYPOINT ["/entrypoint.sh"]

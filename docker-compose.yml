@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+    database:
+        image: postgres:14-alpine
+        container_name: ${PG_CONTAINER_NAME}
+        
+        environment:
+            POSTGRES_DB: ${PG_DB}
+            POSTGRES_USER: ${PG_USER}
+            POSTGRES_PASSWORD: ${PG_PASSWORD}
+        
+        ports:
+            # HOST_PORT:CONTAINER_PORT
+            - ${PG_HOST_PORT}:${PG_CONTAINER_PORT}
+
+        build:
+            context: ${PG_CONTEXT}
+        volumes:
+            - db-data:/var/lib/postgresql/data:rw
+
+# volumes:
+#     ###> doctrine/doctrine-bundle ###
+#     db-data:
+#     ###< doctrine/doctrine-bundle ###
+    # redis:
+    #     image: redis:5-alpine
+    #     container_name: ${REDIS_CONTAINER_NAME}
+    #     ports: [6379]
+
+    # rabbitmq:
+    #     image: rabbitmq:3.7-management
+    #     container_name: ${RABBIT_CONTAINER_NAME}
+    #     ports: [5672, 15672]
+
+    # mailcatcher:
+    #     image: schickling/mailcatcher
+    #     container_name: ${MAILCATCHER_CONTAINER_NAME}
+    #     ports: [1025, 1080]
+
+    # blackfire:
+    #     image: blackfire/blackfire
+    #     container_name: ${BLACKFIRE_CONTAINER_NAME}
+    #     env_file: ${BLACKFIRE_ENV_FILE}
+    #     ports: ${${BLACKFIRE_PORT}}
+    
+    web:
+        container_name: ${PHP_CONTAINER_NAME}
+        build:
+            context: ${PHP_CONTEXT}
+            dockerfile: ${PHP_DOCKERFILE}
+        ports:
+            - ${PHP_HOST_PORT}:${PHP_CONTAINER_PORT}
+        volumes:
+            - .:/var/www/html
+
+volumes:
+    db-data:

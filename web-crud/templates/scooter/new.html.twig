@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Scooter{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h2 class="text-center mt-5 mb-3">Create Scooter</h2>
+    <div class="card">
+        <div class="card-header">
+            <a class="btn btn-outline-info float-right" href="{{ path('scooter_index') }}">
+                View All Scooter
+            </a>
+        </div>
+        <div class="card-body">
+            {{ include('scooter/_form.html.twig') }}
+        </div>
+    </div>
+</div>
+{% endblock %}
